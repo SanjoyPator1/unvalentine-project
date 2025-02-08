@@ -17,7 +17,11 @@ export type ApiResponse<T> = {
 
 export type GetNotesResponse = ApiResponse<{
   notes: Pick<Note, 'id' | 'content' | 'created_at'>[];
+  total: number;
+  limit: number;
+  offset: number;
 }>;
+
 
 export type CreateNoteResponse = ApiResponse<{
   note: Pick<Note, 'id' | 'content' | 'created_at'>;

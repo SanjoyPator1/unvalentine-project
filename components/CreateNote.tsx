@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { noteService } from "@/lib/services/noteService";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ export function CreateNote() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const maxLength = 10000;
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +36,8 @@ export function CreateNote() {
         title: "Note posted successfully",
         description: "Your voice has been added to our digital wall.",
       });
+
+      router.push("/notes");
     } catch (error) {
       toast({
         title: "Couldn't post your note",

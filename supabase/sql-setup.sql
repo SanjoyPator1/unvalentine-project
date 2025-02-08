@@ -19,22 +19,6 @@ CREATE POLICY "Anyone can read notes"
     FOR SELECT
     USING (true);
 
-CREATE POLICY "Can insert notes with rate limiting"
-    ON public.notes 
-    FOR INSERT
-    WITH CHECK (
-        -- IP must match what's being inserted
-        current_setting('request.headers')::json->>'x-forwarded-for' = ip_address
-        AND
-        -- Rate limit check
-        (
-            SELECT COUNT(*) < 5
-            FROM public.notes
-            WHERE ip_address = current_setting('request.headers')::json->>'x-forwarded-for'
-            AND created_at > NOW() - INTERVAL '1 hour'
-        )
-    );
-
 -- Create indexes for better performance
 CREATE INDEX idx_notes_created_at ON public.notes (created_at DESC);
 CREATE INDEX idx_notes_ip_rate_limit ON public.notes (ip_address, created_at);

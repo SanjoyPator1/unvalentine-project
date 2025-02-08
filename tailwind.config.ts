@@ -58,5 +58,13 @@ export default {
   		}
   	}
   },
+  safelist: [
+    "line-clamp-3",
+    "line-clamp-4",
+    "line-clamp-5",
+    "line-clamp-6",
+    "line-clamp-7", 
+  ],
+
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

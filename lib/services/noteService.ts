@@ -2,14 +2,14 @@ import { CreateNoteRequest, CreateNoteResponse, GetNotesResponse } from '@/types
 
 export const noteService = {
   // Get all notes
-  async getNotes() {
-    const response = await fetch('/api/notes');
-    const result = await response.json() as GetNotesResponse;
+  async getNotes(limit: number = 10, offset: number = 0) {
+    const response = await fetch(`/api/notes?limit=${limit}&offset=${offset}`);
+    const result = (await response.json()) as GetNotesResponse;
     
     if (!response.ok || result.error) {
       throw new Error(result.error || 'Failed to fetch notes');
     }
-    
+
     return result.data!;
   },
 

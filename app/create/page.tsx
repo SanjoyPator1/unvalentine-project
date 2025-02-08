@@ -1,42 +1,145 @@
+"use client";
 import { CreateNote } from "@/components/CreateNote";
+import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      when: "beforeChildren",
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
+};
+
+const textGradientVariants: Variants = {
+  initial: {
+    backgroundPositionX: "0%",
+  },
+  animate: {
+    backgroundPositionX: "100%",
+    transition: {
+      duration: 3,
+      ease: "linear",
+      repeat: Infinity,
+      repeatType: "reverse",
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.95,
+    y: 20,
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      damping: 20,
+      stiffness: 100,
+    },
+  },
+  hover: {
+    transition: {
+      duration: 0.3,
+    },
+  },
+};
 
 export default function CreateNotePage() {
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8 md:py-12 space-y-12">
-      <div className="text-center space-y-4">
+    <motion.div
+      className="container max-w-2xl mx-auto md:py-12 space-y-12"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div className="text-center space-y-4" variants={itemVariants}>
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
           Express Your{" "}
-          <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+          <motion.span
+            className="inline-block bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 bg-clip-text text-transparent bg-[length:200%_auto]"
+            variants={textGradientVariants}
+            initial="initial"
+            animate="animate"
+          >
             Truth
-          </span>
+          </motion.span>
         </h1>
-        <p className="text-muted-foreground text-lg max-w-[600px] mx-auto">
+        <motion.p
+          className="text-muted-foreground text-lg max-w-[600px] mx-auto"
+          variants={itemVariants}
+        >
           This Valentine&apos;s Day, share your authentic thoughts anonymously.
           Join our community of singles expressing themselves through digital
           notes.
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
-      <div className="backdrop-blur-sm bg-card/30 rounded-xl shadow-sm">
-        <div className="max-w-xl mx-auto space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Write Your Note</h2>
-            <p className="text-sm text-muted-foreground">
+      <motion.div
+        className="backdrop-blur-sm bg-card/30 rounded-xl shadow-sm border border-border/10"
+        variants={cardVariants}
+        whileHover="hover"
+        initial="hidden"
+        animate="visible"
+        layout
+      >
+        <motion.div
+          className="max-w-xl mx-auto p-6 space-y-6"
+          variants={itemVariants}
+        >
+          <motion.div className="space-y-2" variants={itemVariants}>
+            <motion.h2
+              className="text-xl font-semibold"
+              variants={itemVariants}
+            >
+              Write Your Note
+            </motion.h2>
+            <motion.p
+              className="text-sm text-muted-foreground"
+              variants={itemVariants}
+            >
               Whether you&apos;re celebrating independence or expressing your
               feelings, your voice matters here
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <CreateNote />
+          <motion.div variants={itemVariants}>
+            <CreateNote />
+          </motion.div>
 
-          <div className="pt-4 border-t border-border/40">
-            <p className="text-sm text-muted-foreground text-center">
+          <motion.div
+            className="pt-4 border-t border-border/40"
+            variants={itemVariants}
+          >
+            <motion.p
+              className="text-sm text-muted-foreground text-center"
+              variants={itemVariants}
+            >
               Your identity stays private. Your thoughts become part of our
               collective expression.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+            </motion.p>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

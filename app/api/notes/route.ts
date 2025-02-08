@@ -91,7 +91,17 @@ export async function POST(request: NextRequest) {
     const clientIp = getIpAddress(request);
     
     // Check rate limit before proceeding
-    const isAllowed = await checkRateLimit(clientIp);
+    let isAllowed = true
+
+    if (process.env.NODE_ENV === "production") {
+      isAllowed = await checkRateLimit(clientIp);
+    }
+
+    console.log("process.env.NODE_ENV ", process.env.NODE_ENV)
+
+    console.log("is allowed ",isAllowed)
+
+    
     if (!isAllowed) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },
@@ -138,12 +148,18 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const { data, error } = await supabase
+    // Extract query parameters
+    const { searchParams } = new URL(req.url);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const offset = parseInt(searchParams.get('offset') || '0', 10);
+
+    const { data, error, count } = await supabase
       .from('notes')
-      .select('id, content, created_at')
-      .order('created_at', { ascending: false });
+      .select('id, content, created_at', { count: 'exact' }) 
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error('Supabase error:', error);
@@ -153,7 +169,14 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ data: { notes: data } });
+    return NextResponse.json({
+      data: {
+        notes: data,
+        total: count,
+        limit,
+        offset,
+      },
+    });
 
   } catch (error) {
     console.error('Unexpected error:', error);
