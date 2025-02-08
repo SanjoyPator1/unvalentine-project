@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getRandomAvatar } from "@/lib/helperFunction";
 
 interface NoteCardProps {
   note: Note;
@@ -14,33 +15,7 @@ interface NoteCardProps {
 }
 
 const MAX_PREVIEW_CHARS = 280;
-const MAX_LINES_FALLBACK = 5; // Fallback for edge cases like single-char lines
-
-// Function to generate a random avatar URL using DiceBear
-const getRandomAvatar = (seed: string) => {
-  const styles = [
-    "adventurer",
-    "avataaars",
-    "bottts",
-    "fun-emoji",
-    "open-peeps",
-    "big-ears",
-    "big-smile",
-    "croodles",
-    "identicon",
-    "initials",
-    "lorelei",
-    "micah",
-    "miniavs",
-    "notionists",
-    "personas",
-    "pixel-art",
-    "pixel-art-neutral",
-  ];
-  // Remove Math.random() to keep consistency
-  const index = seed.charCodeAt(0) % styles.length;
-  return `https://api.dicebear.com/7.x/${styles[index]}/svg?seed=${seed}`;
-};
+const MAX_LINES_FALLBACK = 5;
 
 export const NoteCard = ({
   note,
@@ -53,7 +28,6 @@ export const NoteCard = ({
 
   const contentRef = useRef<HTMLParagraphElement>(null);
 
-  // Function to handle text truncation and display
   const getDisplayText = () => {
     if (isExpanded) return note.content;
 
@@ -61,7 +35,6 @@ export const NoteCard = ({
       return note.content;
     }
 
-    // Find the last space before MAX_PREVIEW_CHARS to avoid cutting words
     const lastSpace = note.content.lastIndexOf(" ", MAX_PREVIEW_CHARS);
     return lastSpace > 0
       ? note.content.slice(0, lastSpace)
