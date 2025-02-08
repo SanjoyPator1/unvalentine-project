@@ -11,8 +11,9 @@ export default function CreateNotePage() {
           </span>
         </h1>
         <p className="text-muted-foreground text-lg max-w-[600px] mx-auto">
-          This Valentine's Day, share your authentic thoughts anonymously. Join
-          our community of singles expressing themselves through digital notes.
+          This Valentine&apos;s Day, share your authentic thoughts anonymously.
+          Join our community of singles expressing themselves through digital
+          notes.
         </p>
       </div>
 
@@ -21,7 +22,7 @@ export default function CreateNotePage() {
           <div className="space-y-2">
             <h2 className="text-xl font-semibold">Write Your Note</h2>
             <p className="text-sm text-muted-foreground">
-              Whether you're celebrating independence or expressing your
+              Whether you&apos;re celebrating independence or expressing your
               feelings, your voice matters here
             </p>
           </div>
