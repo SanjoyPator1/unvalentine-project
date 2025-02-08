@@ -6,12 +6,16 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "test:notes": "ts-node --project ./supabase/tsconfig.json ./supabase/tests/test-notes-setup.ts",
     "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.6",
+    "@supabase/supabase-js": "^2.48.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "kleur": "^4.1.5",
     "lucide-react": "^0.475.0",
     "next": "15.1.6",
     "next-themes": "^0.4.4",
@@ -25,10 +29,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "postcss": "^8",
+    "supabase": "^2.9.6",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
