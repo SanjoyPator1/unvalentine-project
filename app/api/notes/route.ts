@@ -12,9 +12,23 @@ function isLocalhost(ip: string): boolean {
   return ip === '::1' || ip === '127.0.0.1' || ip === 'localhost';
 }
 
-function sanitizeIp(ip: string): string {
-  // Clean the IP address by removing any extra spaces or invalid characters
-  return ip.trim().split(',')[0].trim();
+function extractIpFromForwarded(forwarded: string): string | null {
+  // Match the IP address after "for=" and before the next semicolon
+  const match = forwarded.match(/for=([^;]+)/);
+  return match ? match[1] : null;
+}
+
+function sanitizeIp(headerValue: string, headerName: string): string | null {
+  if (!headerValue) return null;
+
+  // Handle Vercel's forwarded header format
+  if (headerName === 'forwarded') {
+    return extractIpFromForwarded(headerValue);
+  }
+
+  // For other headers, get first IP if multiple are present
+  const cleanIp = headerValue.split(',')[0].trim();
+  return cleanIp || null;
 }
 
 // Helper function to get the real IP address
@@ -30,26 +44,23 @@ function getIpAddress(request: NextRequest): string {
   }
 
   // Check headers in order of reliability
-  const headers = {
-    forwarded: request.headers.get('forwarded'),
-    xForwardedFor: request.headers.get('x-forwarded-for'),
-    xRealIp: request.headers.get('x-real-ip'),
-    cfConnectingIp: request.headers.get('cf-connecting-ip'), // Cloudflare
-    trueClientIp: request.headers.get('true-client-ip'),    // Cloudflare
-    xClientIp: request.headers.get('x-client-ip'),
-  };
+  const headerChecks = [
+    ['forwarded', request.headers.get('forwarded')],
+    ['x-forwarded-for', request.headers.get('x-forwarded-for')],
+    ['x-real-ip', request.headers.get('x-real-ip')],
+    ['cf-connecting-ip', request.headers.get('cf-connecting-ip')],
+    ['true-client-ip', request.headers.get('true-client-ip')],
+    ['x-client-ip', request.headers.get('x-client-ip')]
+  ] as const;
 
-  // Log headers in development
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('IP-related headers:', headers);
-  }
-
-  // Try each header in order
-  for (const [headerName, headerValue] of Object.entries(headers)) {
+  // Try each header
+  for (const [headerName, headerValue] of headerChecks) {
     if (headerValue) {
-      const ip = sanitizeIp(headerValue);
-      if (!isLocalhost(ip)) {
-        console.log(`Using IP from ${headerName}:`, ip);
+      const ip = sanitizeIp(headerValue, headerName);
+      if (ip && !isLocalhost(ip)) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`Using IP from ${headerName}:`, ip);
+        }
         return ip;
       }
     }
