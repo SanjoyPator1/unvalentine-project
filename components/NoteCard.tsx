@@ -1,12 +1,11 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Note } from "@/types/note";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { format, parseISO } from "date-fns";
 
 interface NoteCardProps {
   note: Note;
@@ -38,8 +37,9 @@ const getRandomAvatar = (seed: string) => {
     "pixel-art",
     "pixel-art-neutral",
   ];
-  const randomStyle = styles[Math.floor(Math.random() * styles.length)];
-  return `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${seed}`;
+  // Remove Math.random() to keep consistency
+  const index = seed.charCodeAt(0) % styles.length;
+  return `https://api.dicebear.com/7.x/${styles[index]}/svg?seed=${seed}`;
 };
 
 export const NoteCard = ({
@@ -49,7 +49,8 @@ export const NoteCard = ({
 }: NoteCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShowButton, setShouldShowButton] = useState(false);
-  const [avatarUrl] = useState(() => getRandomAvatar(note.id));
+  const [avatarUrl, setAvatarUrl] = useState("");
+
   const contentRef = useRef<HTMLParagraphElement>(null);
 
   // Function to handle text truncation and display
@@ -68,12 +69,15 @@ export const NoteCard = ({
   };
 
   useEffect(() => {
+    setAvatarUrl(getRandomAvatar(note.id));
+  }, [note.id]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const checkOverflow = () => {
       if (contentRef.current) {
-        // Check if content exceeds character limit
         const exceedsCharLimit = note.content.length > MAX_PREVIEW_CHARS;
-
-        // Also check line overflow as a fallback for edge cases
         const lineHeight = parseInt(
           getComputedStyle(contentRef.current).lineHeight
         );
@@ -89,7 +93,15 @@ export const NoteCard = ({
     return () => window.removeEventListener("resize", checkOverflow);
   }, [note.content]);
 
-  const formattedDate = format(parseISO(note.created_at), "MMM d, h:mm a");
+  const formattedDate = useMemo(() => {
+    return new Intl.DateTimeFormat(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(new Date(note.created_at));
+  }, [note.created_at]);
 
   return (
     <motion.div
@@ -126,31 +138,32 @@ export const NoteCard = ({
                   )}
                 </p>
 
-                {shouldShowButton && (
-                  <div className="flex justify-end mt-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsExpanded(!isExpanded)}
-                      className="text-xs hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-200"
-                    >
-                      {isExpanded ? (
-                        <span className="flex items-center gap-1">
-                          Show less <ChevronUp className="h-4 w-4" />
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1">
-                          Show more <ChevronDown className="h-4 w-4" />
-                        </span>
-                      )}
-                    </Button>
+                <div className="flex gap-sm justify-between">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-2">
+                    <Clock className="h-3.5 w-3.5" />
+                    <time dateTime={note.created_at}>{formattedDate}</time>
                   </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-2 border-t">
-                <Clock className="h-3.5 w-3.5" />
-                <time dateTime={note.created_at}>{formattedDate}</time>
+                  {shouldShowButton && (
+                    <div className="flex justify-end mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-xs hover:text-pink-500 dark:hover:text-pink-400 transition-colors duration-200"
+                      >
+                        {isExpanded ? (
+                          <span className="flex items-center gap-1">
+                            Show less <ChevronUp className="h-4 w-4" />
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            Show more <ChevronDown className="h-4 w-4" />
+                          </span>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -54,7 +54,7 @@ const NotesPage = () => {
   }, [fetchNotes]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <motion.header
           className="mb-8 text-center"
@@ -108,7 +108,7 @@ const NotesPage = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            You've reached the end of the notes ✨
+            You&apos;ve reached the end of the notes ✨
           </motion.p>
         )}
       </div>
