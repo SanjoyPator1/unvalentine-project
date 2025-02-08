@@ -75,20 +75,32 @@ function getIpAddress(request: NextRequest): string {
   return '127.0.0.1';
 }
 
+async function checkRateLimit(ip: string): Promise<boolean> {
+  const { count } = await supabase
+    .from('notes')
+    .select('*', { count: 'exact', head: true })
+    .eq('ip_address', ip)
+    .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
+
+  return count !== null && count < 5;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as CreateNoteRequest;
     const clientIp = getIpAddress(request);
     
-    // Log in non-production environments
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Received request from IP:', clientIp);
-      console.log('Request body:', body);
+    // Check rate limit before proceeding
+    const isAllowed = await checkRateLimit(clientIp);
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
     }
 
     // Validate content
     if (!body.content?.trim()) {
-      console.log('Invalid request: Empty content');
       return NextResponse.json(
         { error: 'Content is required' },
         { status: 400 }
@@ -113,11 +125,6 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to create note' },
         { status: 500 }
       );
-    }
-
-    // Log success in non-production environments
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Note created successfully:', data);
     }
 
     return NextResponse.json({ data: { note: data } });

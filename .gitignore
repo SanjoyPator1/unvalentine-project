@@ -16,6 +16,8 @@ pnpm-debug.log*
 .env.production.local
 
 # Build output
+/.next/
+/out/
 .next/
 out/
 dist/
