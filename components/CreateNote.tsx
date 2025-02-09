@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { PenSquare, Loader2, X } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export function CreateNote() {
   const [content, setContent] = useState("");
@@ -37,6 +38,8 @@ export function CreateNote() {
         description: "Your voice has been added to our digital wall.",
       });
 
+      trackEvent("create_note", "engagement", "note_created_success");
+
       router.push("/notes");
     } catch (error) {
       toast({
@@ -45,6 +48,7 @@ export function CreateNote() {
           error instanceof Error ? error.message : "Please try again later",
         variant: "destructive",
       });
+      trackEvent("note_error", "engagement", "note_creation_failed");
     } finally {
       setIsSubmitting(false);
     }

@@ -5,8 +5,12 @@ import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SoundProvider } from "@/components/SoundProvider";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"] });
+
+const IMAGEKIT_URL =
+  "https://ik.imagekit.io/5hubejuf2/OtherPublicImages/unvalentine-og.png?updatedAt=1739086033451";
 
 export const metadata: Metadata = {
   title: "Unvalentine | Share Your Valentine's Day Thoughts Anonymously",
@@ -21,6 +25,14 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Unvalentine" }],
   openGraph: {
+    images: [
+      {
+        url: IMAGEKIT_URL,
+        width: 1200,
+        height: 630,
+        alt: "Unvalentine - Anonymous Valentine's Day Expression",
+      },
+    ],
     title: "Unvalentine | Anonymous Valentine's Day Expression",
     description:
       "Share your Valentine's Day thoughts anonymously through digital sticky notes.",
@@ -33,6 +45,7 @@ export const metadata: Metadata = {
     title: "Unvalentine | Anonymous Valentine's Day Expression",
     description:
       "Share your Valentine's Day thoughts anonymously through digital sticky notes.",
+    images: [IMAGEKIT_URL],
   },
   robots: {
     index: true,
@@ -69,6 +82,7 @@ export default function RootLayout({
           </SoundProvider>
           <Toaster />
         </ThemeProvider>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_MEASUREMENT_ID!} />
       </body>
     </html>
   );
