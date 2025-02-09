@@ -7,6 +7,18 @@ body {
 }
 
 @layer base {
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gpu-accelerated {
+      transition-duration: 0.1s;
+    }
+  }
+
   .bg-grid-pattern {
     background-size: 20px 20px;
     background-image: linear-gradient(
