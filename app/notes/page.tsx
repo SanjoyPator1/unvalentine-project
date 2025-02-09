@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Note } from "@/types/note";
 import { NoteCard } from "@/components/NoteCard";
-import { Loader2 } from "lucide-react";
-import { noteService } from "@/lib/services/noteService";
-import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { noteService } from "@/lib/services/noteService";
+import { Note } from "@/types/note";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const PAGE_SIZE = 10;
 
@@ -55,7 +55,7 @@ const NotesPage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-2xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto px-1 py-8 sm:px-6 lg:px-8">
         <motion.header
           className="mb-8 text-center"
           initial={{ opacity: 0, y: -20 }}

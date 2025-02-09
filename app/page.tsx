@@ -1,15 +1,94 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { noteService } from "@/lib/services/noteService";
 import { NotesVisualization } from "@/components/NotesVisualization";
-import { Loader2 } from "lucide-react";
 import { Note } from "@/types/note";
+import ValentineLoading from "@/components/ValentineLoading";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDescription, setShowDescription] = useState(true);
+
+  const decorations = [
+    // { emoji: "💪", size: "text-3xl" },
+    { emoji: "✨", size: "text-4xl" },
+    { emoji: "👑", size: "text-3xl" },
+    { emoji: "🦋", size: "text-4xl" },
+    { emoji: "⭐", size: "text-3xl" },
+    { emoji: "🌟", size: "text-4xl" },
+    { emoji: "🎭", size: "text-3xl" },
+    { emoji: "🎵", size: "text-3xl" },
+  ];
+
+  const decorationsWithPositions = useMemo(() => {
+    const spacing = 60;
+    const totalWidth = (decorations.length - 1) * spacing;
+
+    return decorations.map((item, index) => {
+      const x = -totalWidth / 2 + index * spacing;
+      const y = 5;
+
+      return {
+        ...item,
+        x,
+        y,
+        delay: index * 0.15,
+        floatOffset: Math.random() * 15 - 7.5,
+        rotateOffset: Math.random() * 20 - 10,
+      };
+    });
+  }, []);
+
+  const floatingVariants = {
+    initial: {
+      scale: 0,
+      opacity: 0,
+      rotate: 0,
+    },
+    animate: (custom: {
+      floatOffset: number;
+      rotateOffset: number;
+      x: number;
+      y: number;
+    }) => ({
+      x: custom.x,
+      y: [
+        custom.y + custom.floatOffset,
+        custom.y - custom.floatOffset,
+        custom.y + custom.floatOffset,
+      ],
+      rotate: [custom.rotateOffset, -custom.rotateOffset, custom.rotateOffset],
+      scale: 1,
+      opacity: [0.7, 1, 0.7],
+      transition: {
+        x: {
+          duration: 0.8,
+          ease: [0.4, 0, 0.2, 1],
+        },
+        y: {
+          repeat: Infinity,
+          duration: 3 + Math.random(),
+          ease: "easeInOut",
+        },
+        rotate: {
+          repeat: Infinity,
+          duration: 4 + Math.random(),
+          ease: "easeInOut",
+        },
+        opacity: {
+          repeat: Infinity,
+          duration: 2 + Math.random(),
+          ease: "easeInOut",
+        },
+        scale: {
+          duration: 0.4,
+          ease: "easeOut",
+        },
+      },
+    }),
+  };
 
   useEffect(() => {
     const fetchInitialNotes = async () => {
@@ -33,19 +112,11 @@ export default function Home() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Loading notes...</span>
-        </div>
-      </div>
-    );
+    return <ValentineLoading />;
   }
 
   return (
     <div className="fixed inset-0">
-      {/* Background gradient */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -53,12 +124,10 @@ export default function Home() {
         className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-muted/20 pointer-events-none"
       />
 
-      {/* Notes visualization layer - remove pointer-events-none */}
       <div className="absolute inset-0">
         <NotesVisualization initialNotes={notes} />
       </div>
 
-      {/* Title and description layer */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-32 left-0 right-0 flex flex-col items-center">
           <div className="relative">
@@ -75,17 +144,7 @@ export default function Home() {
               }}
               className="relative text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl"
             >
-              <span
-                className="
-                inline-block 
-                bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 
-                bg-clip-text text-transparent 
-                bg-[length:200%_auto] 
-                animate-gradient
-                drop-shadow-[0_0_15px_rgba(236,72,153,0.3)]
-                [text-shadow:0_0_25px_rgba(236,72,153,0.2)]
-              "
-              >
+              <span className="inline-block bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient drop-shadow-[0_0_15px_rgba(236,72,153,0.3)] [text-shadow:0_0_25px_rgba(236,72,153,0.2)]">
                 Express Your Heart
               </span>
             </motion.h1>
@@ -108,7 +167,7 @@ export default function Home() {
                   opacity: 0,
                   y: -20,
                   transition: {
-                    duration: 0.6,
+                    duration: 0.8,
                     ease: [0.4, 0, 0.2, 1],
                   },
                 }}
@@ -120,6 +179,40 @@ export default function Home() {
               </motion.p>
             )}
           </AnimatePresence>
+
+          <motion.div className="relative w-full h-48 mt-8">
+            {decorationsWithPositions.map((item, index) => {
+              const y = showDescription ? item.y : item.y - 30;
+              const x = item.x;
+
+              return (
+                <motion.div
+                  key={index}
+                  initial="initial"
+                  animate="animate"
+                  variants={floatingVariants}
+                  custom={{
+                    floatOffset: item.floatOffset,
+                    rotateOffset: item.rotateOffset,
+                    x,
+                    y,
+                  }}
+                  transition={{ delay: item.delay }}
+                  className="absolute"
+                  style={{
+                    left: "50%",
+                    top: "0%",
+                  }}
+                >
+                  <div
+                    className={`${item.size} filter drop-shadow-[0_0_8px_rgba(236,72,153,0.5)] transform -translate-x-1/2 -translate-y-1/2`}
+                  >
+                    {item.emoji}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         </div>
       </div>
     </div>
